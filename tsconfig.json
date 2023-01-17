@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+  "experimentalDecorators": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"]
+    },
+  },
+  "include": [
+    "src/scripts/**/*.ts",
+    "./wp_config/**/*.js",
+    ".eslintrc.js",
+    "eslint-packages/**/*.js",
+  ],
+  "exclude": ["node_modules"],
+
+}

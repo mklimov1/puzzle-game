@@ -1,0 +1,47 @@
+{
+  "name": "financial_application",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack --config wp_config/prod.config.js",
+    "dev": "cross-env NODE_ENV=development webpack serve --config wp_config/dev.config.js",
+    "lint": "eslint 'src/**/*.{js,ts}' || true",
+    "prettier": "prettier --write 'src/**/*.{js,ts}'"
+  },
+  "keywords": [],
+  "author": "Maxim Klimov",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.17.9",
+    "@babel/plugin-proposal-class-properties": "^7.16.0",
+    "@babel/preset-env": "^7.16.11",
+    "@types/pixi.js": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
+    "babel-loader": "^8.2.5",
+    "clean-webpack-plugin": "^4.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.5.1",
+    "eslint": "^8.14.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "html-webpack-plugin": "^5.5.0",
+    "node-sass": "^7.0.0",
+    "postcss-loader": "^6.2.1",
+    "postcss-preset-env": "^7.0.1",
+    "prettier": "^2.6.2",
+    "sass-loader": "^12.4.0",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.2.9",
+    "typescript": "^4.6.2",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0",
+    "webpack-merge": "^5.8.0"
+  },
+  "dependencies": {
+    "pixi.js": "^7.0.5"
+  }
+}
