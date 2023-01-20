@@ -1,11 +1,14 @@
-import { Container, Texture } from "pixi.js";
+import { Container, FederatedPointerEvent, Texture } from "pixi.js";
 import { IItem } from "../Item/interface";
 import { ISize } from "../../types";
 import { IAbstractBoard } from "../../abstract/Board/interface";
 
+export type TItemClickHandler = (ev: FederatedPointerEvent) => void;
+
 export type TBoardOptions = {
   abstractBoard: IAbstractBoard;
   itemTextures: Texture[];
+  itemClickHandler: TItemClickHandler;
 };
 
 export interface IBoard extends Container {
@@ -14,8 +17,9 @@ export interface IBoard extends Container {
   rows: number;
   deep: number;
   items: IItem[];
+  abstractBoard: IAbstractBoard;
 
-  fill(abstractBoard: IAbstractBoard, textures: Texture[]): IItem[];
+  fill(textures: Texture[], itemClickHandler: TItemClickHandler): IItem[];
   setItemPosition(item: IItem): void;
-  updateItemsPosition(): void;
+  updateItemsPosition(abstractBoard: IAbstractBoard): void;
 }

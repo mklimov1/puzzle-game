@@ -1,8 +1,8 @@
 import { Container, Texture } from "pixi.js";
 import { Item } from "../Item";
 import { IItem, TItemOptions } from "../Item/interface";
-import { ISize, TBoardPreset } from "../../types";
-import { IBoard, TBoardOptions } from "./interface";
+import { ISize } from "../../types";
+import { IBoard, TBoardOptions, TItemClickHandler } from "./interface";
 import { IAbstractBoard } from "../../abstract/Board/interface";
 
 export class Board extends Container implements IBoard {
@@ -11,15 +11,19 @@ export class Board extends Container implements IBoard {
   columns: number;
   rows: number;
   deep: number;
+  abstractBoard: IAbstractBoard;
 
-  constructor({ abstractBoard, itemTextures, }: TBoardOptions) {
+  constructor({ abstractBoard, itemTextures, itemClickHandler, }: TBoardOptions) {
     super();
+    this.interactiveChildren = true;
 
+    this.abstractBoard = abstractBoard;
     this.items = [];
-    this.columns = abstractBoard.layers[0].items[0].length;
-    this.rows = abstractBoard.layers[0].items.length;
+    const [{ items, }] = abstractBoard.layers;
+    this.columns = items[0].length;
+    this.rows = items.length;
     this.deep = abstractBoard.layers.length;
-    this.fill(abstractBoard, itemTextures);
+    this.fill(itemTextures, itemClickHandler);
 
     const [firstItem] = this.items;
 
@@ -31,6 +35,7 @@ export class Board extends Container implements IBoard {
   }
 
   setItemPosition(item: IItem) {
+    const { abstractBoard, } = this;
     const { width, height, positionOnBoard, } = item;
     const isEven = positionOnBoard.deep % 2 === 0;
     const xOffset = isEven ? 0 : width * 0.2;
@@ -39,9 +44,11 @@ export class Board extends Container implements IBoard {
     const { boardSize, columns, rows, } = this;
     const x = ((boardSize.width + range) / columns) * (-0.5 + positionOnBoard.x) + xOffset;
     const y = ((boardSize.height + range) / rows) * (-0.5 + positionOnBoard.y) + yOffset;
+    const isActive = !abstractBoard.isItemBusy(positionOnBoard.deep, positionOnBoard.y, positionOnBoard.x);
 
     item.x = x;
     item.y = y;
+    item.isActive = isActive;
   }
 
   updateItemsPosition() {
@@ -52,8 +59,17 @@ export class Board extends Container implements IBoard {
     });
   }
 
-  fill(abstractBoard: IAbstractBoard, textures: Texture[]): IItem[] {
+  createItem(options: TItemOptions, clickHandler: TItemClickHandler) {
+    const item = new Item(options);
+
+    item.on(`pointertap`, clickHandler);
+
+    return item;
+  }
+
+  fill(textures: Texture[], itemClickHandler?: TItemClickHandler): IItem[] {
     console.log(`board filling`);
+    const { abstractBoard, } = this;
 
     abstractBoard.layers.forEach((layer, deep) => {
       layer.items.forEach((rows, row) => {
@@ -61,7 +77,6 @@ export class Board extends Container implements IBoard {
           if (id === null) return;
           const itemOptions: TItemOptions = {
             id,
-            // texture: new Texture(new BaseTexture()),
             texture: textures[id],
             positionOnBoard: {
               deep,
@@ -70,6 +85,10 @@ export class Board extends Container implements IBoard {
             },
           };
           const item = new Item(itemOptions);
+
+          if (itemClickHandler) {
+            item.on(`pointertap`, itemClickHandler);
+          }
 
           this.items.push(item);
         });

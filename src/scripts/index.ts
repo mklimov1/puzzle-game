@@ -28,6 +28,9 @@ const abstractBoard = new AbstractBoard({ boardPreset: boardPreset, });
 const boardOptions: TBoardOptions = {
   abstractBoard,
   itemTextures,
+  itemClickHandler: (ev) => {
+    console.log(ev);
+  },
 };
 const board = new Board(boardOptions);
 const appWrapper = document.querySelector(`#app`) as HTMLElement;

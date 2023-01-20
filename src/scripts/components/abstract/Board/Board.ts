@@ -1,5 +1,5 @@
 import { TBoardPreset } from "../../types";
-import { IAbstractItem, TItemStatus } from "../Item/interface";
+import { TItemStatus } from "../Item/interface";
 import { AbstractLayer } from "../Layer";
 import { IAbstractBoard, TAbstractBoardOptions, TAbstractLayers } from "./interface";
 
@@ -40,7 +40,6 @@ export class Board implements IAbstractBoard {
         });
       });
     });
-
     return this.layers;
   }
 
@@ -48,12 +47,9 @@ export class Board implements IAbstractBoard {
     const { layers, } = this;
     let deep = itemDeep + 1;
 
-    for (deep; deep < layers.length - 1; deep++) {
+    for (deep; deep < layers.length; deep++) {
       const item = layers[deep].items[itemRow][itemColumn];
-
-      if (!item.isEmpty) {
-        return true;
-      }
+      if (!item.isEmpty) return true;
     }
     return false;
   }
