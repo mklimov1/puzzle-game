@@ -1,8 +1,9 @@
-import { TItemID } from "../../types";
+import { TItemID, TItemUID } from "../../types";
 import { IAbstractItem, IAbstractItemOptions, TItemStatus } from "./interface";
 
 export class Item implements IAbstractItem {
   private _id: TItemID;
+  uid: TItemUID;
 
   status: TItemStatus;
   isEmpty: boolean;
@@ -12,6 +13,7 @@ export class Item implements IAbstractItem {
     this.isEmpty = true;
     this.id = options.id;
     this.status = options.status ?? `inactive`;
+    this.uid = options.uid;
   }
 
   set id(value: TItemID) {
