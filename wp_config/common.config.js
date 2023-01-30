@@ -2,12 +2,12 @@
 const Webpack = require(`webpack`);
 
 const HtmlWebpackPlugin = require(`html-webpack-plugin`);
-const { CleanWebpackPlugin } = require(`clean-webpack-plugin`);
+const { CleanWebpackPlugin, } = require(`clean-webpack-plugin`);
 
 const paths = require(`./paths`);
 
 module.exports = {
-  entry: { main: `${paths.src}/scripts/index.ts` },
+  entry: { main: `${paths.src}/scripts/index.ts`, },
   module: {
     rules: [
       {
@@ -25,25 +25,28 @@ module.exports = {
       {
         test: /\.(s[ac]ss|css)$/,
         use: [
-          { loader: `style-loader` },
-          { loader: `css-loader` },
+          { loader: `style-loader`, },
+          { loader: `css-loader`, },
           {
             loader: `postcss-loader`,
             options: {
-              postcssOptions: { config: `wp_config/postcss.config.js` },
+              postcssOptions: { config: `wp_config/postcss.config.js`, },
             },
           },
-          { loader: `sass-loader` },
+          { loader: `sass-loader`, }
         ],
       },
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|fbx|glb|gltf)$/i,
         type: `asset`,
-      },
+      }
     ],
   },
   resolve: {
     extensions: [`.js`, `.jsx`, `.ts`, `.tsx`],
+  },
+  experiments: {
+    topLevelAwait: true,
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -52,6 +55,6 @@ module.exports = {
     }),
     new Webpack.DefinePlugin({
     }),
-    new CleanWebpackPlugin(),
+    new CleanWebpackPlugin()
   ],
 };
