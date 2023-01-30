@@ -44,5 +44,6 @@ module.exports = {
     "indent": [`error`, 2],
     'arrow-parens': [`error`, `always`],
     'space-infix-ops': `error`,
+    'no-console': 'warn'
   },
 };
