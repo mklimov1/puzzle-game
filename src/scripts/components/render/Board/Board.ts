@@ -1,94 +1,93 @@
 import { Container, Texture } from "pixi.js";
 import { Item } from "../Item";
 import { IItem, TItemOptions } from "../Item/interface";
-import { ISize } from "../../types";
-import { IBoard, TBoardOptions, TItemClickHandler } from "./interface";
+import { TBoardSize } from "../../types";
+import { IBoard, TBoardOptions } from "./interface";
 import { IAbstractBoard } from "../../abstract/Board/interface";
 
 export class Board extends Container implements IBoard {
   items: IItem[];
-  boardSize: ISize;
-  columns: number;
-  rows: number;
-  deep: number;
-  abstractBoard: IAbstractBoard;
-
-  constructor({ abstractBoard, itemTextures, itemClickHandler, }: TBoardOptions) {
+  constructor({ abstractBoard, itemTextures, }: TBoardOptions) {
     super();
-    this.interactiveChildren = true;
-
-    this.abstractBoard = abstractBoard;
+    this.interactiveChildren = false;
     this.items = [];
-    const [{ items, }] = abstractBoard.layers;
-    this.columns = items[0].length;
-    this.rows = items.length;
-    this.deep = abstractBoard.layers.length;
-    this.fill(itemTextures, itemClickHandler);
 
-    const [firstItem] = this.items;
-
-    this.boardSize = {
-      width: firstItem ? firstItem.width * this.columns : 0,
-      height: firstItem ? firstItem.height * this.rows : 0,
-    };
-    this.updateItemsPosition();
+    this.fill(abstractBoard, itemTextures);
+    this.updateItemsPosition(abstractBoard);
   }
 
-  setItemPosition(item: IItem) {
-    const { abstractBoard, } = this;
+  setItemPosition(item: IItem, { columns, rows, }: TBoardSize) {
     const { width, height, positionOnBoard, } = item;
-    const isEven = positionOnBoard.deep % 2 === 0;
-    const xOffset = isEven ? 0 : width * 0.2;
-    const yOffset = isEven ? 0 : height * 0.2;
+    const isEven = positionOnBoard.depth % 2 === 0;
+    const xOffset = isEven ? 0 : width * 0;
+    const yOffset = isEven ? 0 : height * 0;
     const range = width * 0.3;
-    const { boardSize, columns, rows, } = this;
-    const x = ((boardSize.width + range) / columns) * (-0.5 + positionOnBoard.x) + xOffset;
-    const y = ((boardSize.height + range) / rows) * (-0.5 + positionOnBoard.y) + yOffset;
-    const isActive = !abstractBoard.isItemBusy(positionOnBoard.deep, positionOnBoard.y, positionOnBoard.x);
+    const bWidth = width * columns;
+    const bHeight = height * rows;
+    const x = ((bWidth + range) / columns) * (-0.5 + positionOnBoard.column) + xOffset;
+    const y = ((bHeight + range) / rows) * (-0.5 + positionOnBoard.row) + yOffset;
 
     item.x = x;
     item.y = y;
-    item.isActive = isActive;
   }
 
-  updateItemsPosition() {
+  updateItemsPosition(abstractBoard: IAbstractBoard) {
     const { items, } = this;
+    const { layers, } = abstractBoard;
+
+    const boardSize: TBoardSize = {
+      depth: layers.length,
+      rows: layers[0].items.length,
+      columns: layers[0].items[0].length,
+    };
 
     items.forEach((item) => {
-      this.setItemPosition(item);
+      this.setItemPosition(item, boardSize);
     });
   }
 
-  createItem(options: TItemOptions, clickHandler: TItemClickHandler) {
+  removeItems() {
+    this.removeChildren();
+  }
+
+  removeItemByCoords(depth: number, row: number, column: number) {
+    const filteredItems = this.items.filter(({ positionOnBoard, }: IItem) => {
+      return depth === positionOnBoard.depth && row === positionOnBoard.row && column === positionOnBoard.column;
+    });
+
+    if (filteredItems.length > 0) {
+      this.removeChild(...filteredItems);
+    }
+  }
+
+  createItem(options: TItemOptions) {
     const item = new Item(options);
 
-    item.on(`pointertap`, clickHandler);
+    item.on(`pointertap`, () => {
+      this.emit(`itemClicked`, item);
+    }, item);
 
     return item;
   }
 
-  fill(textures: Texture[], itemClickHandler?: TItemClickHandler): IItem[] {
+  fill(abstractBoard: IAbstractBoard, textures: Texture[]): IItem[] {
     console.log(`board filling`);
-    const { abstractBoard, } = this;
 
-    abstractBoard.layers.forEach((layer, deep) => {
+    abstractBoard.layers.forEach((layer, depth) => {
       layer.items.forEach((rows, row) => {
-        rows.forEach(({ id, }, col) => {
+        rows.forEach(({ id, uid, }, column) => {
           if (id === null) return;
+
           const itemOptions: TItemOptions = {
-            id,
+            uid,
             texture: textures[id],
             positionOnBoard: {
-              deep,
-              x: row,
-              y: col,
+              depth,
+              row,
+              column,
             },
           };
-          const item = new Item(itemOptions);
-
-          if (itemClickHandler) {
-            item.on(`pointertap`, itemClickHandler);
-          }
+          const item = this.createItem(itemOptions);
 
           this.items.push(item);
         });

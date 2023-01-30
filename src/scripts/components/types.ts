@@ -1,8 +1,16 @@
 export type TItemID = number | null;
+export type TItemUID = number;
+
 export type TItemPositionOnBoard = {
-  x: number;
-  y: number;
-  deep: number;
+  row: number;
+  column: number;
+  depth: number;
+};
+
+export type TBoardSize = {
+  rows: number;
+  columns: number;
+  depth: number;
 };
 
 export interface ISize {
