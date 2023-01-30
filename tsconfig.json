@@ -13,6 +13,7 @@
   },
   "include": [
     "src/scripts/**/*.ts",
+    "src/assets/**/*.ts",
     "./wp_config/**/*.js",
     ".eslintrc.js",
     "eslint-packages/**/*.js",
