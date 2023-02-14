@@ -1,14 +1,15 @@
 import { Container, DisplayObject, Texture } from "pixi.js";
-import { TItemPositionOnBoard, TItemUID } from "../../types";
+import { TItemUID } from "../../types";
+import { TItemPosition } from "@/src/scripts/types";
 
 export type TItemOptions = {
   texture: Texture;
-  positionOnBoard: TItemPositionOnBoard;
+  boardPosition: TItemPosition;
   uid: TItemUID;
 };
 
 export interface IItem extends Container {
   item: DisplayObject;
   uid: TItemUID;
-  positionOnBoard: TItemPositionOnBoard;
+  boardPosition: TItemPosition;
 }

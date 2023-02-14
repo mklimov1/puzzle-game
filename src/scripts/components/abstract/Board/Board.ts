@@ -1,87 +1,68 @@
-import { TBoardPreset, TItemUID } from "../../types";
-import { IAbstractItem, TItemStatus } from "../Item/interface";
-import { AbstractLayer } from "../Layer";
-import { IAbstractBoard, TAbstractBoardOptions, TAbstractLayers } from "./interface";
+import { TItemUID } from "../../types";
+import { IAbstractItem } from "../Item/interface";
+import { IAbstractBoard, TAbstractBoardOptions } from "./interface";
+import { TPresetBoard } from "@/src/scripts/types";
+import { createAbstractItem, sortByPosition } from "../../../core/utils";
 
-export class Board implements IAbstractBoard {
-  layers: TAbstractLayers;
+export class Board implements IAbstractBoard<IAbstractItem> {
+  items: IAbstractItem[];
 
   constructor(options: TAbstractBoardOptions) {
-    this.layers = [];
+    this.items = [];
 
     if (options.boardPreset) {
       this.fill(options.boardPreset);
     }
   }
 
-  fill(preset: TBoardPreset): TAbstractLayers {
-    preset.forEach((layerPreset) => {
-      const layer = new AbstractLayer({ itemPreset: layerPreset, });
-      this.layers.push(layer);
+  fill(preset: TPresetBoard): IAbstractItem[] {
+    preset.forEach(({ id, ...position }) => {
+      this.items.push(createAbstractItem(id, position));
     });
-
-    this.updateItemStatuses();
-
-    return this.layers;
+    return this.items;
   }
 
-  updateItemStatuses(): TAbstractLayers {
-    const { layers, } = this;
+  isItemBusy(item: IAbstractItem) {
+    const { items, } = this;
+    const { position: { x, y, z, }, } = item;
+    const xRange = [x - 1, x + 1];
+    const yRange = [y - 1, y + 1];
+    const filteredItems = this.sortByPosition();
+    const index = filteredItems.indexOf(item);
 
-    layers.forEach((layer, depth) => {
-      layer.items.forEach((rowItems, row) => {
-        rowItems.forEach((item, column) => {
-          this.updateItemStatusByCoords(depth, column, row);
-        });
-      });
-    });
-    return this.layers;
-  }
+    for (let i = index + 1; i < filteredItems.length; i++) {
+      const { position, } = filteredItems[i];
 
-  updateItemStatusByCoords(depth: number, column: number, row: number) {
-    const item = this.layers[depth].items[row][column];
-
-    if (!item.isEmpty) {
-      const isBusy = this.isItemBusy(depth, column, row);
-      const status: TItemStatus = isBusy ? `inactive` : `active`;
-
-      item.status = status;
-    }
-  }
-
-  updateItemStatusesByXY(x: number, y: number) {
-    const { layers, } = this;
-
-    layers.forEach((layer, depth) => {
-      this.updateItemStatusByCoords(depth, x, y);
-    });
-  }
-
-  isItemBusy(itemDepth: number, itemColumn: number, itemRow: number) {
-    const { layers, } = this;
-    let depth = itemDepth + 1;
-
-    for (depth; depth < layers.length; depth++) {
-      const item = layers[depth].items[itemRow][itemColumn];
-      if (!item.isEmpty) return true;
+      if (
+        item !== items[i]
+        // && (position.z >= z && index < i)
+        && position.z >= z
+        && (xRange[0] < position.x && xRange[1] > position.x)
+        && (yRange[0] < position.y && yRange[1] > position.y)
+      ) {
+        return true;
+      }
     }
     return false;
   }
 
-  removeByPosition(depth: number, x: number, y: number) {
-    this.layers[depth].items[y][x].id = null;
+  removeByPosition(x: number, y: number, z: number) {
+    this.items = this.items.filter(({ position, }) => {
+      return !(x === position.x && y === position.y && z === position.z);
+    });
   }
 
   findItemByUID(uid: TItemUID): IAbstractItem | null {
-    const { layers, } = this;
+    const { items, } = this;
 
-    for (let i = 0; i < layers.length; i++) {
-      const item = layers[i].findItemByUID(uid);
-
-      if (item !== null) {
-        return item;
-      }
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].uid === uid) return items[i];
     }
+
     return null;
+  }
+
+  sortByPosition(): IAbstractItem[] {
+    return sortByPosition(this.items);
   }
 }

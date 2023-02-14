@@ -1,21 +1,21 @@
-import { TBoardPreset, TItemUID } from "../../types";
-import { IAbstractItem } from "../Item/interface";
-import { IAbstractLayer } from "../Layer/interface";
-
-export type TAbstractLayers = IAbstractLayer[];
+import { TItemUID } from "../../types";
+import { TItemPosition, TPresetBoard } from "@/src/scripts/types";
 
 export type TAbstractBoardOptions = {
-  boardPreset?: TBoardPreset;
+  boardPreset?: TPresetBoard;
 };
 
-export interface IAbstractBoard {
-  layers: TAbstractLayers;
+export type TAbstractBoardItem = {
+  uid: TItemUID;
+  position: TItemPosition;
+};
 
-  fill(items: TBoardPreset): TAbstractLayers;
-  updateItemStatuses(): TAbstractLayers;
-  isItemBusy(itemDepth: number, itemColumn: number, itemRow: number): boolean;
-  updateItemStatusByCoords(depth: number, column: number, row: number): void;
-  updateItemStatusesByXY(x: number, y: number): void;
-  removeByPosition(depth: number, x: number, y: number): void;
-  findItemByUID(uid: TItemUID): IAbstractItem | null;
+export interface IAbstractBoard<T extends TAbstractBoardItem> {
+  items: T[];
+
+  fill(preset: TPresetBoard): T[];
+  isItemBusy(item: T): boolean;
+  removeByPosition(x: number, y: number, z: number): void;
+  findItemByUID(uid: TItemUID): T | null;
+  sortByPosition(): T[];
 }

@@ -1,11 +1,12 @@
 import { Container, DisplayObject, Rectangle, Sprite } from "pixi.js";
-import { TItemPositionOnBoard, TItemUID } from "../../types";
+import { TItemPosition } from "@/src/scripts/types";
+import { TItemUID } from "../../types";
 import { IItem, TItemOptions } from "./interface";
 
 export class Item extends Container implements IItem {
   uid: TItemUID;
   item: DisplayObject;
-  positionOnBoard: TItemPositionOnBoard;
+  boardPosition: TItemPosition;
 
   constructor(options: TItemOptions) {
     const item = new Sprite(options.texture);
@@ -15,7 +16,7 @@ export class Item extends Container implements IItem {
     this.addChild(item);
     this.item = item;
     this.uid = options.uid;
-    this.positionOnBoard = options.positionOnBoard;
+    this.boardPosition = options.boardPosition;
     this.hitArea = hitArea;
     this.interactive = true;
   }
